@@ -9,12 +9,13 @@ mod scan;
 
 #[derive(Parser)]
 #[command(name = "organisiert")]
-#[command(about = "A music library organizer")]
-#[command(version = "0.1.0")]
+#[command(about = "Multithreaded CLI tool to organize music files into a folder structure defined by you")]
+#[command(author = "PandaDEV, contact@pandadev.net")]
+#[command(version = "1.0.0")]
 struct Cli {
     input_dir: PathBuf,
     output_dir: PathBuf,
-    #[arg(short = 'M', long = "move")]
+    #[arg(short, long)]
     move_files: bool,
     #[arg(short, long)]
     threads: Option<usize>,
