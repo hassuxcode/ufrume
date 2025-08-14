@@ -204,7 +204,13 @@ fn replace_placeholders(
     let mut result = template.to_string();
 
     if template.contains("{artist}") {
-        if let Some(album_artist) = &metadata.album_artist {
+        if is_compilation(metadata) {
+            if let Some(artist) = &metadata.artist {
+                result = result.replace("{artist}", artist);
+            } else {
+                return None;
+            }
+        } else if let Some(album_artist) = &metadata.album_artist {
             result = result.replace("{artist}", album_artist);
         } else if let Some(artist) = &metadata.artist {
             result = result.replace("{artist}", artist);
