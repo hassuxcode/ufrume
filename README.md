@@ -1,6 +1,6 @@
 # Organisiert
 
-A multithreaded CLI tool to organize your music from messy into a structured system defined by you.
+A multithreaded CLI tool to organize your music files into a folder structure defined by you.
 
 <table>
 <tr>
