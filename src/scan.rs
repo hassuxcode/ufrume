@@ -77,7 +77,12 @@ pub fn scan_for_music(
                     pb.inc(1);
                     Some((path.clone(), metadata))
                 }
-                Err(_) => {
+                Err(err) => {
+                    eprintln!(
+                        "  Failed to extract metadata from {}: {}",
+                        path.display(),
+                        err
+                    );
                     *failed_extractions.lock().unwrap() += 1;
                     pb.inc(1);
                     None
