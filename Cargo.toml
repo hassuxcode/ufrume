@@ -3,7 +3,7 @@ name = "organisiert"
 description = "A multithreaded CLI tool to organize your music from messy into a structured system defined by you."
 license = "GPL-3.0"
 authors = ["PandaDEV"]
-version = "0.1.0"
+version = "1.0.0"
 edition = "2024"
 
 [dependencies]
