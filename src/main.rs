@@ -1,4 +1,4 @@
-use crate::{ config::load_or_create_config, organize::organize_music_files, scan::scan_for_music };
+use crate::{config::load_or_create_config, organize::organize_music_files, scan::scan_for_music};
 use clap::Parser;
 use console::style;
 use std::path::PathBuf;
@@ -24,11 +24,17 @@ struct Cli {
 
 fn verify_paths(input_dir: &PathBuf, output_dir: &PathBuf) -> Result<(), String> {
     if !input_dir.exists() {
-        return Err(format!("Input path does not exist: {}", input_dir.display()));
+        return Err(format!(
+            "Input path does not exist: {}",
+            input_dir.display()
+        ));
     }
 
     if !output_dir.exists() {
-        return Err(format!("Output path does not exist: {}", output_dir.display()));
+        return Err(format!(
+            "Output path does not exist: {}",
+            output_dir.display()
+        ));
     }
 
     Ok(())
@@ -37,7 +43,11 @@ fn verify_paths(input_dir: &PathBuf, output_dir: &PathBuf) -> Result<(), String>
 fn main() {
     let cli = Cli::parse();
 
-    println!("{} {}", style("[1/4]").bold().dim(), "Loading configuration...");
+    println!(
+        "{} {}",
+        style("[1/4]").bold().dim(),
+        "Loading configuration..."
+    );
     let config = match load_or_create_config() {
         Ok(config) => config,
         Err(e) => {
@@ -67,8 +77,7 @@ fn main() {
             std::process::exit(1);
         }
 
-        rayon::ThreadPoolBuilder
-            ::new()
+        rayon::ThreadPoolBuilder::new()
             .num_threads(count)
             .build_global()
             .map_err(|e| {
@@ -79,7 +88,11 @@ fn main() {
         println!("  Threads: {}", style(count.to_string()).cyan());
     }
 
-    println!("{} {}", style("[3/4]").bold().dim(), "Scanning music files...");
+    println!(
+        "{} {}",
+        style("[3/4]").bold().dim(),
+        "Scanning music files..."
+    );
 
     let music_files = match scan_for_music(&cli.input_dir) {
         Ok(music_files) => {
@@ -110,7 +123,11 @@ fn main() {
         }
     };
 
-    println!("\n{} {}", style("[4/4]").bold().dim(), "Organizing music files...");
+    println!(
+        "\n{} {}",
+        style("[4/4]").bold().dim(),
+        "Organizing music files..."
+    );
 
     match organize_music_files(&music_files, &cli.output_dir, &config, cli.move_files) {
         Ok(_result) => (),

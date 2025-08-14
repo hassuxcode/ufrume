@@ -1,5 +1,5 @@
-use serde::{ Deserialize, Serialize };
-use std::{ collections::HashMap, fs, path::PathBuf };
+use serde::{Deserialize, Serialize};
+use std::{collections::HashMap, fs, path::PathBuf};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Config {
@@ -63,7 +63,7 @@ impl Default for Config {
             organization: Organization {
                 structure: "{artist}/{year} - {album}/{track:02} - {title}".to_string(),
                 compilation_structure: Some(
-                    "Compilations/{album}/{track:02} - {artist} - {title}".to_string()
+                    "Compilations/{album}/{track:02} - {artist} - {title}".to_string(),
                 ),
                 fallback_structure: "Unknown/{filename}".to_string(),
             },

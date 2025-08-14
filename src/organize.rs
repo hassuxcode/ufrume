@@ -1,8 +1,14 @@
-use crate::{ config::Config, scan::AudioMetadata };
+use crate::{config::Config, scan::AudioMetadata};
 
-use indicatif::{ ProgressBar, ProgressStyle };
+use indicatif::{ProgressBar, ProgressStyle};
 use rayon::prelude::*;
-use std::{ collections::HashMap, fs, path::{ Path, PathBuf }, sync::{ Arc, Mutex }, time::Instant };
+use std::{
+    collections::HashMap,
+    fs,
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex},
+    time::Instant,
+};
 
 #[derive(Debug)]
 pub struct OrganizeResult {
@@ -16,7 +22,7 @@ pub fn organize_music_files(
     music_files: &[(PathBuf, AudioMetadata)],
     output_dir: &PathBuf,
     config: &Config,
-    move_files: bool
+    move_files: bool,
 ) -> Result<OrganizeResult, Box<dyn std::error::Error>> {
     if music_files.is_empty() {
         return Ok(OrganizeResult {
@@ -28,7 +34,11 @@ pub fn organize_music_files(
     }
 
     let thread_count = rayon::current_num_threads();
-    println!("  Organizing {} files using {} threads", music_files.len(), thread_count);
+    println!(
+        "  Organizing {} files using {} threads",
+        music_files.len(),
+        thread_count
+    );
 
     let start_time = Instant::now();
 
@@ -36,7 +46,7 @@ pub fn organize_music_files(
     pb.set_style(
         ProgressStyle::default_bar()
             .template("  [{bar:40.cyan/blue}] {pos}/{len} [{elapsed_precise}] {msg}")?
-            .progress_chars("█▉▊▋▌▍▎▏  ")
+            .progress_chars("█▉▊▋▌▍▎▏  "),
     );
 
     let moved = Arc::new(Mutex::new(0));
@@ -51,21 +61,25 @@ pub fn organize_music_files(
             pb.set_message(filename.to_string_lossy().to_string());
         }
 
-        match
-            organize_single_file(source_path, metadata, output_dir, config, &used_paths, move_files)
-        {
-            Ok(result) =>
-                match result {
-                    FileResult::Moved => {
-                        *moved.lock().unwrap() += 1;
-                    }
-                    FileResult::Skipped => {
-                        *skipped.lock().unwrap() += 1;
-                    }
-                    FileResult::Duplicate => {
-                        *duplicates.lock().unwrap() += 1;
-                    }
+        match organize_single_file(
+            source_path,
+            metadata,
+            output_dir,
+            config,
+            &used_paths,
+            move_files,
+        ) {
+            Ok(result) => match result {
+                FileResult::Moved => {
+                    *moved.lock().unwrap() += 1;
                 }
+                FileResult::Skipped => {
+                    *skipped.lock().unwrap() += 1;
+                }
+                FileResult::Duplicate => {
+                    *duplicates.lock().unwrap() += 1;
+                }
+            },
             Err(_) => {
                 *failed.lock().unwrap() += 1;
             }
@@ -85,7 +99,12 @@ pub fn organize_music_files(
     };
 
     let action = if move_files { "moved" } else { "copied" };
-    println!("  {} files {} in {:.2}s", result.moved, action, duration.as_secs_f64());
+    println!(
+        "  {} files {} in {:.2}s",
+        result.moved,
+        action,
+        duration.as_secs_f64()
+    );
     if result.skipped > 0 {
         println!("  {} files skipped", result.skipped);
     }
@@ -112,7 +131,7 @@ fn organize_single_file(
     output_dir: &PathBuf,
     config: &Config,
     used_paths: &Arc<Mutex<HashMap<PathBuf, PathBuf>>>,
-    move_files: bool
+    move_files: bool,
 ) -> Result<FileResult, Box<dyn std::error::Error>> {
     let relative_path = match generate_target_path(source_path, metadata, config) {
         Some(path) => path,
@@ -160,10 +179,14 @@ fn organize_single_file(
 fn generate_target_path(
     source_path: &PathBuf,
     metadata: &AudioMetadata,
-    config: &Config
+    config: &Config,
 ) -> Option<PathBuf> {
     let structure = if is_compilation(metadata) {
-        config.organization.compilation_structure.as_ref().unwrap_or(&config.organization.structure)
+        config
+            .organization
+            .compilation_structure
+            .as_ref()
+            .unwrap_or(&config.organization.structure)
     } else {
         &config.organization.structure
     };
@@ -174,9 +197,15 @@ fn generate_target_path(
 }
 
 fn generate_fallback_path(source_path: &PathBuf, config: &Config) -> PathBuf {
-    let filename = source_path.file_name().unwrap_or_default().to_string_lossy();
+    let filename = source_path
+        .file_name()
+        .unwrap_or_default()
+        .to_string_lossy();
 
-    let fallback_str = config.organization.fallback_structure.replace("{filename}", &filename);
+    let fallback_str = config
+        .organization
+        .fallback_structure
+        .replace("{filename}", &filename);
 
     let sanitized_path = sanitize_path(&fallback_str, config);
     PathBuf::from(sanitized_path)
@@ -185,7 +214,7 @@ fn generate_fallback_path(source_path: &PathBuf, config: &Config) -> PathBuf {
 fn replace_placeholders(
     template: &str,
     source_path: &PathBuf,
-    metadata: &AudioMetadata
+    metadata: &AudioMetadata,
 ) -> Option<String> {
     let mut result = template.to_string();
 
@@ -246,7 +275,10 @@ fn replace_placeholders(
     }
 
     if template.contains("{filename}") {
-        let filename = source_path.file_name().unwrap_or_default().to_string_lossy();
+        let filename = source_path
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy();
         result = result.replace("{filename}", &filename);
     }
 
@@ -301,10 +333,13 @@ fn sanitize_path(path: &str, config: &Config) -> String {
 
 fn handle_duplicate_rename(
     target_path: &PathBuf,
-    used_paths: &mut HashMap<PathBuf, PathBuf>
+    used_paths: &mut HashMap<PathBuf, PathBuf>,
 ) -> PathBuf {
     let mut counter = 1;
-    let stem = target_path.file_stem().unwrap_or_default().to_string_lossy();
+    let stem = target_path
+        .file_stem()
+        .unwrap_or_default()
+        .to_string_lossy();
     let extension = target_path
         .extension()
         .map(|e| format!(".{}", e.to_string_lossy()))
