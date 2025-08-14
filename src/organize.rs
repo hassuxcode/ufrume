@@ -10,6 +10,14 @@ use std::{
     time::Instant,
 };
 
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+struct MetadataKey {
+    artist: String,
+    album: String,
+    title: String,
+    track: Option<u16>,
+}
+
 #[derive(Debug)]
 pub struct OrganizeResult {
     pub moved: usize,
@@ -32,13 +40,6 @@ pub fn organize_music_files(
         });
     }
 
-    let thread_count = rayon::current_num_threads();
-    println!(
-        "  Organizing {} files using {} threads",
-        music_files.len(),
-        thread_count
-    );
-
     let start_time = Instant::now();
 
     let pb = Arc::new(ProgressBar::new(music_files.len() as u64));
@@ -53,14 +54,24 @@ pub fn organize_music_files(
     let failed = Arc::new(Mutex::new(0));
     let duplicates = Arc::new(Mutex::new(0));
 
-    let used_paths: Arc<Mutex<HashMap<PathBuf, PathBuf>>> = Arc::new(Mutex::new(HashMap::new()));
+    let used_metadata: Arc<Mutex<HashMap<MetadataKey, PathBuf>>> =
+        Arc::new(Mutex::new(HashMap::new()));
+
+    if let Ok(existing_files) = crate::scan::scan_for_music(output_dir) {
+        let mut metadata_map = used_metadata.lock().unwrap();
+        for (path, metadata) in existing_files {
+            if let Some(metadata_key) = create_metadata_key(&metadata) {
+                metadata_map.insert(metadata_key, path);
+            }
+        }
+    }
 
     music_files.par_iter().for_each(|(source_path, metadata)| {
         if let Some(filename) = source_path.file_name() {
             pb.set_message(filename.to_string_lossy().to_string());
         }
 
-        match organize_single_file(source_path, metadata, output_dir, config, &used_paths) {
+        match organize_single_file(source_path, metadata, output_dir, config, &used_metadata) {
             Ok(result) => match result {
                 FileResult::Moved => {
                     *moved.lock().unwrap() += 1;
@@ -120,7 +131,7 @@ fn organize_single_file(
     metadata: &AudioMetadata,
     output_dir: &PathBuf,
     config: &Config,
-    used_paths: &Arc<Mutex<HashMap<PathBuf, PathBuf>>>,
+    used_metadata: &Arc<Mutex<HashMap<MetadataKey, PathBuf>>>,
 ) -> Result<FileResult, Box<dyn std::error::Error>> {
     let relative_path = match generate_target_path(source_path, metadata, config) {
         Some(path) => path,
@@ -136,19 +147,55 @@ fn organize_single_file(
     let target_path = output_dir.join(&relative_path);
 
     let final_target_path = {
-        let mut paths_map = used_paths.lock().unwrap();
-        if paths_map.contains_key(&target_path) {
-            match config.rules.handle_duplicates.as_str() {
-                "skip" => {
-                    return Ok(FileResult::Duplicate);
+        let metadata_key = create_metadata_key(metadata);
+        let mut metadata_map = used_metadata.lock().unwrap();
+
+        if let Some(metadata_key) = metadata_key {
+            if metadata_map.contains_key(&metadata_key) {
+                match config.rules.handle_duplicates.as_str() {
+                    "skip" => {
+                        return Ok(FileResult::Duplicate);
+                    }
+                    "rename" => {
+                        handle_duplicate_rename(&target_path, &metadata_key, &mut metadata_map)
+                    }
+                    "overwrite" => {
+                        if let Some(old_path) = metadata_map.get(&metadata_key) {
+                            let _ = fs::remove_file(old_path);
+                        }
+                        metadata_map.insert(metadata_key, source_path.clone());
+                        target_path
+                    }
+                    _ => target_path,
                 }
-                "rename" => handle_duplicate_rename(&target_path, &mut paths_map),
-                "overwrite" => target_path,
-                _ => target_path,
+            } else {
+                metadata_map.insert(metadata_key, source_path.clone());
+                target_path
             }
         } else {
-            paths_map.insert(target_path.clone(), source_path.clone());
-            target_path
+            let fallback_key = MetadataKey {
+                artist: "Unknown".to_string(),
+                album: "Unknown".to_string(),
+                title: source_path
+                    .file_stem()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .to_string(),
+                track: None,
+            };
+
+            if metadata_map.contains_key(&fallback_key) {
+                match config.rules.handle_duplicates.as_str() {
+                    "skip" => return Ok(FileResult::Duplicate),
+                    "rename" => {
+                        handle_duplicate_rename(&target_path, &fallback_key, &mut metadata_map)
+                    }
+                    _ => target_path,
+                }
+            } else {
+                metadata_map.insert(fallback_key, source_path.clone());
+                target_path
+            }
         }
     };
 
@@ -324,7 +371,8 @@ fn sanitize_path(path: &str, config: &Config) -> String {
 
 fn handle_duplicate_rename(
     target_path: &PathBuf,
-    used_paths: &mut HashMap<PathBuf, PathBuf>,
+    metadata_key: &MetadataKey,
+    used_metadata: &mut HashMap<MetadataKey, PathBuf>,
 ) -> PathBuf {
     let mut counter = 1;
     let stem = target_path
@@ -341,12 +389,34 @@ fn handle_duplicate_rename(
         let new_filename = format!("{} ({}){}", stem, counter, extension);
         let new_path = parent.join(new_filename);
 
-        if !used_paths.contains_key(&new_path) {
-            used_paths.insert(new_path.clone(), target_path.clone());
+        let mut new_metadata_key = metadata_key.clone();
+        new_metadata_key.title = format!("{} ({})", metadata_key.title, counter);
+
+        if !used_metadata.contains_key(&new_metadata_key) {
+            used_metadata.insert(new_metadata_key, new_path.clone());
             return new_path;
         }
         counter += 1;
     }
+}
+
+fn create_metadata_key(metadata: &AudioMetadata) -> Option<MetadataKey> {
+    let artist = if is_compilation(metadata) {
+        metadata.artist.as_ref()
+    } else {
+        metadata.album_artist.as_ref().or(metadata.artist.as_ref())
+    };
+
+    let artist = artist?;
+    let album = metadata.album.as_ref()?;
+    let title = metadata.title.as_ref()?;
+
+    Some(MetadataKey {
+        artist: artist.clone(),
+        album: album.clone(),
+        title: title.clone(),
+        track: metadata.track,
+    })
 }
 
 fn is_compilation(metadata: &AudioMetadata) -> bool {
