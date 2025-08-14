@@ -65,11 +65,11 @@ impl Default for Config {
                 compilation_structure: Some(
                     "Compilations/{album}/{track:02} - {artist} - {title}".to_string(),
                 ),
-                fallback_structure: "Unknown/{filename}".to_string(),
+                fallback_structure: "{filename}".to_string(),
             },
             rules: Rules {
-                handle_missing_metadata: "skip".to_string(),
-                handle_duplicates: "rename".to_string(),
+                handle_missing_metadata: "fallback".to_string(),
+                handle_duplicates: "skip".to_string(),
             },
             formatting: Formatting {
                 replace_chars: replace_chars,
