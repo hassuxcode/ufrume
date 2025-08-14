@@ -9,14 +9,15 @@ mod scan;
 
 #[derive(Parser)]
 #[command(name = "organisiert")]
-#[command(about = "Multithreaded CLI tool to organize music files into a folder structure defined by you")]
+#[command(
+    about = "Multithreaded CLI tool to organize music files into a folder structure defined by you"
+)]
 #[command(author = "PandaDEV, contact@pandadev.net")]
 #[command(version = "1.0.0")]
 struct Cli {
     input_dir: PathBuf,
     output_dir: PathBuf,
-    #[arg(short, long)]
-    move_files: bool,
+
     #[arg(short, long)]
     threads: Option<usize>,
     #[arg(short, long)]
@@ -66,11 +67,7 @@ fn main() {
     println!("  Input:  {}", style(cli.input_dir.display()).green());
     println!("  Output: {}", style(cli.output_dir.display()).green());
 
-    if cli.move_files {
-        println!("  Mode:   {}", style("Move").yellow());
-    } else {
-        println!("  Mode:   {}", style("Copy").cyan());
-    }
+    println!("  Mode:   {}", style("Copy").cyan());
 
     if let Some(count) = cli.threads {
         if count == 0 {
@@ -130,7 +127,7 @@ fn main() {
         "Organizing music files..."
     );
 
-    match organize_music_files(&music_files, &cli.output_dir, &config, cli.move_files) {
+    match organize_music_files(&music_files, &cli.output_dir, &config) {
         Ok(_result) => (),
         Err(e) => {
             eprintln!("ERROR: Failed to organize music files: {}", e);

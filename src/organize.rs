@@ -22,7 +22,6 @@ pub fn organize_music_files(
     music_files: &[(PathBuf, AudioMetadata)],
     output_dir: &PathBuf,
     config: &Config,
-    move_files: bool,
 ) -> Result<OrganizeResult, Box<dyn std::error::Error>> {
     if music_files.is_empty() {
         return Ok(OrganizeResult {
@@ -61,14 +60,7 @@ pub fn organize_music_files(
             pb.set_message(filename.to_string_lossy().to_string());
         }
 
-        match organize_single_file(
-            source_path,
-            metadata,
-            output_dir,
-            config,
-            &used_paths,
-            move_files,
-        ) {
+        match organize_single_file(source_path, metadata, output_dir, config, &used_paths) {
             Ok(result) => match result {
                 FileResult::Moved => {
                     *moved.lock().unwrap() += 1;
@@ -98,11 +90,9 @@ pub fn organize_music_files(
         duplicates: *duplicates.lock().unwrap(),
     };
 
-    let action = if move_files { "moved" } else { "copied" };
     println!(
-        "  {} files {} in {:.2}s",
+        "  {} files copied in {:.2}s",
         result.moved,
-        action,
         duration.as_secs_f64()
     );
     if result.skipped > 0 {
@@ -131,7 +121,6 @@ fn organize_single_file(
     output_dir: &PathBuf,
     config: &Config,
     used_paths: &Arc<Mutex<HashMap<PathBuf, PathBuf>>>,
-    move_files: bool,
 ) -> Result<FileResult, Box<dyn std::error::Error>> {
     let relative_path = match generate_target_path(source_path, metadata, config) {
         Some(path) => path,
@@ -167,11 +156,7 @@ fn organize_single_file(
         fs::create_dir_all(parent)?;
     }
 
-    if move_files {
-        fs::rename(source_path, &final_target_path)?;
-    } else {
-        fs::copy(source_path, &final_target_path)?;
-    }
+    fs::copy(source_path, &final_target_path)?;
 
     Ok(FileResult::Moved)
 }
