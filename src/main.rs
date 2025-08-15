@@ -8,7 +8,7 @@ mod organize;
 mod scan;
 
 #[derive(Parser)]
-#[command(name = "organisiert")]
+#[command(name = "ufrume")]
 #[command(
     about = "Multithreaded CLI tool to organize music files into a folder structure defined by you"
 )]

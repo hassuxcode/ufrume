@@ -1,5 +1,5 @@
 [package]
-name = "organisiert"
+name = "ufrume"
 description = "A multithreaded CLI tool to organize your music from messy into a structured system defined by you."
 license = "GPL-3.0"
 authors = ["PandaDEV <contact@pandadev.net>"]

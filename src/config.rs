@@ -29,7 +29,7 @@ pub struct Formatting {
 
 fn get_config_path() -> Result<PathBuf, String> {
     let config_dir = dirs::config_dir().expect("Config directory could not be found");
-    Ok(config_dir.join("organisiert").join("config.toml"))
+    Ok(config_dir.join("ufrume").join("config.toml"))
 }
 
 pub fn load_or_create_config() -> Result<Config, Box<dyn std::error::Error>> {
