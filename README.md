@@ -1,4 +1,4 @@
-# Organisiert
+# Ufrume
 
 A multithreaded CLI tool to organize your music files into a folder structure defined by you.
 
