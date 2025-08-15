@@ -223,7 +223,7 @@ fn generate_target_path(
         &config.organization.structure
     };
 
-    let path_str = replace_placeholders(structure, source_path, metadata)?;
+    let path_str = replace_placeholders(structure, source_path, metadata, config)?;
     let sanitized_path = sanitize_path(&path_str, config);
     Some(PathBuf::from(sanitized_path))
 }
@@ -247,33 +247,34 @@ fn replace_placeholders(
     template: &str,
     source_path: &PathBuf,
     metadata: &AudioMetadata,
+    config: &Config,
 ) -> Option<String> {
     let mut result = template.to_string();
 
     if template.contains("{artist}") {
         if is_compilation(metadata) {
             if let Some(artist) = &metadata.artist {
-                result = result.replace("{artist}", artist);
+                result = result.replace("{artist}", &sanitize_metadata_value(artist, config));
             } else {
                 return None;
             }
         } else if let Some(album_artist) = &metadata.album_artist {
-            result = result.replace("{artist}", album_artist);
+            result = result.replace("{artist}", &sanitize_metadata_value(album_artist, config));
         } else if let Some(artist) = &metadata.artist {
-            result = result.replace("{artist}", artist);
+            result = result.replace("{artist}", &sanitize_metadata_value(artist, config));
         } else {
             return None;
         }
     }
 
     if let Some(title) = &metadata.title {
-        result = result.replace("{title}", title);
+        result = result.replace("{title}", &sanitize_metadata_value(title, config));
     } else if template.contains("{title}") {
         return None;
     }
 
     if let Some(album) = &metadata.album {
-        result = result.replace("{album}", album);
+        result = result.replace("{album}", &sanitize_metadata_value(album, config));
     } else if template.contains("{album}") {
         return None;
     }
@@ -307,7 +308,7 @@ fn replace_placeholders(
     }
 
     if let Some(genre) = &metadata.genre {
-        result = result.replace("{genre}", genre);
+        result = result.replace("{genre}", &sanitize_metadata_value(genre, config));
     } else if template.contains("{genre}") {
         return None;
     }
@@ -417,6 +418,14 @@ fn create_metadata_key(metadata: &AudioMetadata) -> Option<MetadataKey> {
         title: title.clone(),
         track: metadata.track,
     })
+}
+
+fn sanitize_metadata_value(value: &str, config: &Config) -> String {
+    let mut sanitized = value.to_string();
+    for (from, to) in &config.formatting.replace_chars {
+        sanitized = sanitized.replace(from, to);
+    }
+    sanitized
 }
 
 fn is_compilation(metadata: &AudioMetadata) -> bool {
