@@ -39,6 +39,12 @@ fn verify_paths(input_dir: &PathBuf, output_dir: &PathBuf) -> Result<(), String>
         ));
     }
 
+    if input_dir.components().as_path() == output_dir.components().as_path() {
+        return Err(format!(
+            "You are not allowed to specify the same path for both input and output"
+        ));
+    }
+
     Ok(())
 }
 
