@@ -1,4 +1,7 @@
-# Ufrume
+<img width="3000" height="1000" alt="Twitter Header" src="https://github.com/user-attachments/assets/04e5058c-affe-4192-ba5b-6326574033f6" />
+
+<br>
+<br>
 
 A multithreaded CLI tool to organize your music files into a folder structure defined by you.
 
@@ -53,3 +56,12 @@ music/
 </td>
 </tr>
 </table>
+
+## Installation
+
+The easiest way is to install it directly from [crates.io](https://crates.io/crates/ufrume):
+
+```zsh
+cargo install ufrume
+```
+
