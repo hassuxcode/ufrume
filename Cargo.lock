@@ -601,7 +601,7 @@ checksum = "fcc842091f2def52017664b53082ecbbeb5c7731092bad69d2c63050401dfd64"
 
 [[package]]
 name = "ufrume"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "audiotags",
  "clap",
