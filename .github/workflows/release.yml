@@ -265,3 +265,90 @@ jobs:
           git add PKGBUILD .SRCINFO
           git commit -m "Update to version ${{ needs.get-version.outputs.version }}"
           git push origin master
+
+  update-homebrew:
+    name: Update Homebrew Formula
+    runs-on: ubuntu-latest
+    needs: [get-version, release]
+    if: needs.get-version.outputs.is_new_release == 'true'
+    steps:
+      - name: Checkout homebrew repo
+        uses: actions/checkout@v4
+        with:
+          repository: 0PandaDEV/homebrew-repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: homebrew-repo
+      
+      - name: Update formula
+        run: |
+          cd homebrew-repo
+          
+          VERSION="${{ needs.get-version.outputs.version }}"
+          VERSION_NUMBER="${VERSION#v}"
+          
+          declare -A CHECKSUMS
+          
+          for platform in "macos-arm64" "macos-x86_64" "linux-arm64" "linux-x86_64"; do
+            echo "Downloading $platform..."
+            curl -L "https://github.com/${{ github.repository }}/releases/download/$VERSION/ufrume-$platform.tar.gz" -o "$platform.tar.gz"
+            checksum=$(sha256sum "$platform.tar.gz" | cut -d' ' -f1)
+            CHECKSUMS[$platform]=$checksum
+            rm "$platform.tar.gz"
+          done
+          
+          cat > Formula/ufrume.rb << EOF
+          class Ufrume < Formula
+            desc "A multithreaded CLI tool to organize your music files into a folder structure defined by you"
+            homepage "https://github.com/0PandaDEV/ufrume"
+            version "$VERSION_NUMBER"
+            license "GPL-3.0"
+          
+            on_macos do
+              if Hardware::CPU.arm?
+                url "https://github.com/0PandaDEV/ufrume/releases/download/$VERSION/ufrume-macos-arm64.tar.gz"
+                sha256 "${CHECKSUMS[macos-arm64]}"
+              else
+                url "https://github.com/0PandaDEV/ufrume/releases/download/$VERSION/ufrume-macos-x86_64.tar.gz"
+                sha256 "${CHECKSUMS[macos-x86_64]}"
+              end
+            end
+          
+            on_linux do
+              if Hardware::CPU.arm?
+                url "https://github.com/0PandaDEV/ufrume/releases/download/$VERSION/ufrume-linux-arm64.tar.gz"
+                sha256 "${CHECKSUMS[linux-arm64]}"
+              else
+                url "https://github.com/0PandaDEV/ufrume/releases/download/$VERSION/ufrume-linux-x86_64.tar.gz"
+                sha256 "${CHECKSUMS[linux-x86_64]}"
+              end
+            end
+          
+            def install
+              bin.install "ufrume"
+            end
+          
+            test do
+              assert_match version.to_s, shell_output("#{bin}/ufrume --version")
+            end
+          end
+          EOF
+          
+          echo "=== Updated Formula ==="
+          cat Formula/ufrume.rb
+          echo "======================="
+      
+      - name: Commit and push to homebrew repo
+        run: |
+          cd homebrew-repo
+          
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          
+          git add Formula/ufrume.rb
+          git commit -m "Update ufrume to ${{ needs.get-version.outputs.version }}"
+          git push origin main
