@@ -59,7 +59,7 @@ music/
 </tr>
 </table>
 
-## Installation
+# Installation
 
 ### From [crates.io](https://crates.io/crates/ufrume)
 
@@ -105,7 +105,7 @@ source ~/.zshrc
 <details>
 <summary><strong>Windows</strong></summary>
 
-#### Extract the zip file then run these commands in the PowerShell:
+#### Extract the zip file then run these commands in the PowerShell
 
 ```pwsh
 mkdir "$env:USERPROFILE\bin"
@@ -135,7 +135,7 @@ mv ufrume ~/.local/bin/
 
 </details>
 
-## Configuration
+# Configuration
 
 Ufrume uses a TOML configuration file to customize how your music files are organized. The configuration file is automatically created at:
 
@@ -169,35 +169,35 @@ max_filename_length = 255
 
 #### Organization
 
-| Option | Description | Example |
-|--------|-------------|---------|
-| `structure` | Main folder structure template for regular albums | `"{artist}/{year} - {album}/{track:02} - {title}"` |
-| `compilation_structure` | Structure for compilation albums (optional) | `"Compilations/{album}/{track:02} - {artist} - {title}"` |
-| `fallback_structure` | Structure used when metadata is missing | `"{filename}"` |
+| Option                  | Description                                       | Example                                                  |
+|-------------------------|---------------------------------------------------|----------------------------------------------------------|
+| `structure`             | Main folder structure template for regular albums | `"{artist}/{year} - {album}/{track:02} - {title}"`       |
+| `compilation_structure` | Structure for compilation albums (optional)       | `"Compilations/{album}/{track:02} - {artist} - {title}"` |
+| `fallback_structure`    | Structure used when metadata is missing           | `"{filename}"`                                           |
 
 #### Rules
 
-| Option | Description | Values |
-|--------|-------------|--------|
-| `handle_missing_metadata` | What to do when metadata is missing | `"fallback"`, `"skip"` |
-| `handle_duplicates` | How to handle duplicate files | `"skip"`, `"overwrite"`, `"rename"` |
+| Option                    | Description                         | Values                              |
+|---------------------------|-------------------------------------|-------------------------------------|
+| `handle_missing_metadata` | What to do when metadata is missing | `"fallback"`, `"skip"`              |
+| `handle_duplicates`       | How to handle duplicate files       | `"skip"`, `"overwrite"`, `"rename"` |
 
 #### Formatting
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `max_filename_length` | Maximum length for filenames (characters) | `255` |
-| `replace_chars` | Character replacements for invalid filename characters | See table below |
+| Option                | Description                                            | Default         |
+|-----------------------|--------------------------------------------------------|-----------------|
+| `max_filename_length` | Maximum length for filenames (characters)              | `255`           |
+| `replace_chars`       | Character replacements for invalid filename characters | See table below |
 
 #### Character Replacements
 
 The `replace_chars` section defines how invalid filesystem characters are handled:
 
-| Character | Replacement | Reason |
-|-----------|-------------|---------|
-| `/` | `-` | Path separator conflict |
-| `:` | `-` | Invalid on Windows |
-| `?` | `` (removed) | Invalid filename character |
+| Character | Replacement | Reason                     |
+|-----------|-------------|----------------------------|
+| `/`       | `-`         | Path separator conflict    |
+| `:`       | `-`         | Invalid on Windows         |
+| `?`       | (removed)   | Invalid filename character |
 
 ### Available Template Variables
 
